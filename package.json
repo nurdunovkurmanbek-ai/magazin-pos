@@ -1,0 +1,40 @@
+{
+  "name": "magazin-pos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Профессионалдуу азык-түлүк дүкөнү үчүн POS системасы",
+  "scripts": {
+    "install:all": "npm install --prefix shared && npm install --prefix backend && npm install --prefix frontend && npm install --prefix electron",
+    "dev": "concurrently -n backend,frontend -c blue,green \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "start:all": "npm run docker:up && npm run db:setup && npm run dev",
+    "docker:up": "docker compose up -d",
+    "deploy": "docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build",
+    "deploy:down": "docker compose -f docker-compose.prod.yml --env-file .env.prod down",
+    "deploy:logs": "docker compose -f docker-compose.prod.yml --env-file .env.prod logs -f app",
+    "db:setup": "npm run db:push && npm run db:seed",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:desktop": "concurrently -n backend,frontend,electron -c blue,green,yellow \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\" \"npm run dev --prefix electron\"",
+    "build": "npm run build --prefix shared && npm run build --prefix backend && npm run build --prefix frontend",
+    "build:desktop": "npm run build && npm run build --prefix electron",
+    "test": "npm run test --prefix shared && npm run test --prefix backend",
+    "test:coverage": "npm run test:coverage --prefix backend",
+    "db:generate": "npm run db:generate --prefix backend",
+    "db:migrate": "npm run db:migrate --prefix backend",
+    "db:push": "npm run db:push --prefix backend",
+    "db:studio": "npm run db:studio --prefix backend",
+    "db:seed": "npm run db:seed --prefix backend",
+    "db:seed:demo1000": "npm run db:seed:demo1000 --prefix backend",
+    "db:reset-passwords": "npm run db:seed --prefix backend",
+    "autostart:install": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/install-autostart.ps1",
+    "autostart:uninstall": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/uninstall-autostart.ps1",
+    "autostart:run": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/start-magazin.ps1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

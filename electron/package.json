@@ -1,0 +1,44 @@
+{
+  "name": "@magazin/electron",
+  "version": "1.0.0",
+  "private": true,
+  "description": "POS системасы — Electron Desktop",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "tsc && concurrently \"tsc -w\" \"electron .\"",
+    "build": "tsc",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron-store": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "concurrently": "^9.1.2",
+    "electron": "^34.0.2",
+    "electron-builder": "^25.1.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "build": {
+    "appId": "kg.magazin.pos",
+    "productName": "Магазин POS",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "../frontend/dist/**/*"
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

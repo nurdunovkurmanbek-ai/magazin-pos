@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ─────────────────────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    /* Негизги түстөр — Light Mode */
+    --background: 0 0% 98%;
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+
+    /* Бренд — азык-түлүк дүкөнү үчүн жашыл */
+    --primary: 152 69% 31%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 152 69% 26%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 152 40% 94%;
+    --accent-foreground: 152 69% 22%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --success: 152 69% 31%;
+    --success-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 152 69% 31%;
+
+    /* Layout */
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 72px;
+    --navbar-height: 64px;
+    --radius: 0.625rem;
+
+    /* Sidebar */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-active: 152 40% 94%;
+    --sidebar-active-foreground: 152 69% 22%;
+
+    /* Touch */
+    --touch-target: 48px;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
+    --card: 224 50% 8%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 50% 8%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 152 60% 42%;
+    --primary-foreground: 152 80% 10%;
+    --primary-hover: 152 60% 48%;
+
+    --secondary: 215 28% 14%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 28% 14%;
+    --muted-foreground: 217 10% 64%;
+    --accent: 152 30% 14%;
+    --accent-foreground: 152 60% 65%;
+
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --success: 152 60% 42%;
+    --success-foreground: 152 80% 10%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 215 28% 16%;
+    --input: 215 28% 16%;
+    --ring: 152 60% 42%;
+
+    --sidebar: 224 50% 6%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-border: 215 28% 14%;
+    --sidebar-active: 152 30% 14%;
+    --sidebar-active-foreground: 152 60% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Сенсордук экрандар үчүн */
+  .touch-target {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+    touch-action: manipulation;
+  }
+}
+
+@layer components {
+  /* POS баалары үчүн табулярдык сандар */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Scrollbar стили */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

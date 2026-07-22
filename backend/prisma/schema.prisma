@@ -1,0 +1,346 @@
+// Prisma схемасы — PostgreSQL базасы
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Колдонуучулар жана аутентификация ───────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  CASHIER
+  STOREKEEPER
+  ACCOUNTANT
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  role         UserRole @default(CASHIER)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  sales               Sale[]
+  stockMovements      StockMovement[]
+  inventoryCounts     InventoryCount[]
+  expenses            Expense[]
+  backups             BackupRecord[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  revoked   Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique @map("token_hash")
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// ─── Каталог ─────────────────────────────────────────────────────────────────
+
+model Category {
+  id          String    @id @default(cuid())
+  nameKy      String    @map("name_ky")
+  nameRu      String    @map("name_ru")
+  description String?
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String    @id @default(cuid())
+  barcode      String?   @unique
+  barcodeType  BarcodeType @default(FACTORY) @map("barcode_type")
+  soldByWeight Boolean   @default(false) @map("sold_by_weight")
+  isSelfPacked Boolean   @default(false) @map("is_self_packed")
+  noFactoryBarcode Boolean @default(false) @map("no_factory_barcode")
+  qrCode       String?   @unique @map("qr_code")
+  nameKy       String    @map("name_ky")
+  nameRu       String    @map("name_ru")
+  brand        String?
+  description  String?
+  price        Decimal   @db.Decimal(12, 2)
+  costPrice    Decimal   @map("cost_price") @db.Decimal(12, 2)
+  stock        Decimal   @default(0) @db.Decimal(12, 3)
+  minStock     Decimal   @default(10) @map("min_stock") @db.Decimal(12, 3)
+  unit         String    @default("шт")
+  supplier     String?
+  arrivalDate  DateTime? @map("arrival_date")
+  expiryDate   DateTime? @map("expiry_date")
+  imageUrl     String?   @map("image_url")
+  shelfLocation String?  @map("shelf_location")
+  isActive     Boolean   @default(true) @map("is_active")
+  categoryId   String    @map("category_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  category  Category   @relation(fields: [categoryId], references: [id])
+  saleItems SaleItem[]
+  stockMovements StockMovement[]
+  inventoryCountItems InventoryCountItem[]
+
+  @@index([categoryId])
+  @@index([barcode])
+  @@index([qrCode])
+  @@index([brand])
+  @@map("products")
+}
+
+enum BarcodeType {
+  FACTORY
+  INTERNAL
+}
+
+// ─── Сатуу ───────────────────────────────────────────────────────────────────
+
+enum PaymentMethod {
+  CASH
+  CARD
+  QR
+  MIXED
+}
+
+enum SaleStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model Sale {
+  id            String        @id @default(cuid())
+  saleNumber    String        @unique @map("sale_number")
+  subtotal      Decimal       @db.Decimal(12, 2)
+  discount      Decimal       @default(0) @db.Decimal(12, 2)
+  total         Decimal       @db.Decimal(12, 2)
+  paymentMethod PaymentMethod @map("payment_method")
+  status        SaleStatus    @default(PENDING)
+  cashierId     String        @map("cashier_id")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  cashier User       @relation(fields: [cashierId], references: [id])
+  items   SaleItem[]
+  stockMovements StockMovement[]
+
+  @@index([cashierId])
+  @@index([createdAt])
+  @@map("sales")
+}
+
+model SaleItem {
+  id        String  @id @default(cuid())
+  saleId    String  @map("sale_id")
+  productId String  @map("product_id")
+  quantity  Decimal @db.Decimal(12, 3)
+  unitPrice Decimal @map("unit_price") @db.Decimal(12, 2)
+  discount  Decimal @default(0) @db.Decimal(12, 2)
+  total     Decimal @db.Decimal(12, 2)
+
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([saleId])
+  @@map("sale_items")
+}
+
+// ─── Кампа / Запас ───────────────────────────────────────────────────────────
+
+enum StockMovementType {
+  RECEIPT
+  WRITE_OFF
+  ADJUSTMENT
+  SALE
+  REFUND
+  COUNT
+}
+
+model StockMovement {
+  id          String            @id @default(cuid())
+  productId   String            @map("product_id")
+  type        StockMovementType
+  quantity    Decimal           @db.Decimal(12, 3)
+  stockBefore Decimal           @map("stock_before") @db.Decimal(12, 3)
+  stockAfter  Decimal           @map("stock_after") @db.Decimal(12, 3)
+  unitCost    Decimal?          @map("unit_cost") @db.Decimal(12, 2)
+  reason      String?
+  reference   String?
+  saleId      String?           @map("sale_id")
+  userId      String            @map("user_id")
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id])
+  sale    Sale?   @relation(fields: [saleId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([productId, createdAt])
+  @@index([type])
+  @@index([userId])
+  @@map("stock_movements")
+}
+
+enum InventoryCountStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model InventoryCount {
+  id          String               @id @default(cuid())
+  countNumber String               @unique @map("count_number")
+  status      InventoryCountStatus @default(DRAFT)
+  notes       String?
+  startedById String               @map("started_by_id")
+  completedAt DateTime?            @map("completed_at")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+
+  startedBy User                 @relation(fields: [startedById], references: [id])
+  items     InventoryCountItem[]
+
+  @@index([status])
+  @@map("inventory_counts")
+}
+
+model InventoryCountItem {
+  id               String  @id @default(cuid())
+  inventoryCountId String  @map("inventory_count_id")
+  productId        String  @map("product_id")
+  expectedQty      Decimal @map("expected_qty") @db.Decimal(12, 3)
+  countedQty       Decimal @default(0) @map("counted_qty") @db.Decimal(12, 3)
+  variance         Decimal @default(0) @db.Decimal(12, 3)
+
+  inventoryCount InventoryCount @relation(fields: [inventoryCountId], references: [id], onDelete: Cascade)
+  product        Product        @relation(fields: [productId], references: [id])
+
+  @@unique([inventoryCountId, productId])
+  @@map("inventory_count_items")
+}
+
+// ─── Финансы — доход, расход, прибыль ────────────────────────────────────────
+
+enum ExpenseCategory {
+  RENT
+  SALARY
+  UTILITIES
+  SUPPLIES
+  MARKETING
+  OTHER
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  title       String
+  amount      Decimal         @db.Decimal(12, 2)
+  category    ExpenseCategory
+  description String?
+  expenseDate DateTime        @map("expense_date")
+  createdById String          @map("created_by_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@index([expenseDate])
+  @@index([category])
+  @@map("expenses")
+}
+
+// ─── Дүкөн жөндөөлөрү ───────────────────────────────────────────────────────
+
+model StoreSettings {
+  id              String   @id @default("default")
+  storeNameKy     String   @default("Магазин POS") @map("store_name_ky")
+  storeNameRu     String   @default("Магазин POS") @map("store_name_ru")
+  logoUrl         String?  @map("logo_url")
+  addressKy       String?  @map("address_ky")
+  addressRu       String?  @map("address_ru")
+  phone           String?
+  email           String?
+  taxId           String?  @map("tax_id")
+  taxName         String?  @map("tax_name")
+  taxRate         Decimal? @map("tax_rate") @db.Decimal(5, 2)
+  receiptHeaderKy String?  @map("receipt_header_ky")
+  receiptHeaderRu String?  @map("receipt_header_ru")
+  receiptFooterKy String?  @map("receipt_footer_ky")
+  receiptFooterRu String?  @map("receipt_footer_ru")
+  receiptShowLogo Boolean  @default(true) @map("receipt_show_logo")
+  receiptShowTax  Boolean  @default(true) @map("receipt_show_tax")
+  defaultLocale   String   @default("ky") @map("default_locale")
+  currency        String   @default("KGS")
+  backupAutoEnabled    Boolean @default(true) @map("backup_auto_enabled")
+  backupIntervalHours  Int     @default(24) @map("backup_interval_hours")
+  backupRetentionCount Int     @default(10) @map("backup_retention_count")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("store_settings")
+}
+
+// ─── Backup ──────────────────────────────────────────────────────────────────
+
+enum BackupType {
+  MANUAL
+  AUTO
+  PRE_RESTORE
+}
+
+enum BackupStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model BackupRecord {
+  id            String       @id @default(cuid())
+  filename      String       @unique
+  sizeBytes     BigInt       @map("size_bytes")
+  type          BackupType   @default(MANUAL)
+  status        BackupStatus @default(PENDING)
+  includesDb    Boolean      @default(true) @map("includes_db")
+  includesFiles Boolean      @default(true) @map("includes_files")
+  createdById   String?      @map("created_by_id")
+  errorMessage  String?      @map("error_message")
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  createdBy User? @relation(fields: [createdById], references: [id])
+
+  @@index([createdAt])
+  @@map("backup_records")
+}

@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Environment
+.env
+.env.local
+.env.prod
+.env.*.local
+
+# Logs
+logs/
+scripts/logs/
+*.log
+npm-debug.log*
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+backend/prisma/migrations/**/migration_lock.toml
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Backups
+backend/backups/*
+!backend/backups/.gitkeep
+electron/dist/
+*.exe
+*.dmg
+*.AppImage
+
+# Test coverage
+coverage/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Local / secrets
+.env.prod
+backend/.env
+*.pem
+*.key
