@@ -282,7 +282,7 @@ export function FinanceReportTab({
                 <Label>{t('reports.expenseTitle')}</Label>
                 <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t('reports.amount')}</Label>
                   <Input type="number" min="0.01" step="0.01" required value={form.amount || ''}

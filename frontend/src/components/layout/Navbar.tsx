@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Bell, LogOut, Search } from 'lucide-react';
+import { Bell, LogOut, Menu, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,12 +13,20 @@ interface NavbarProps {
   sidebarCollapsed: boolean;
   showSearch?: boolean;
   onSearch?: (value: string) => void;
+  /** Телефондо каптал менюну ачуу */
+  onMenuClick?: () => void;
 }
 
 /**
  * Navbar — үстүнкү панель, издөө жана тез аракеттер
  */
-export function Navbar({ title, sidebarCollapsed, showSearch = false, onSearch }: NavbarProps) {
+export function Navbar({
+  title,
+  sidebarCollapsed,
+  showSearch = false,
+  onSearch,
+  onMenuClick,
+}: NavbarProps) {
   const { t } = useTranslation();
   const { user, logout } = useAuthStore();
 
@@ -30,19 +38,28 @@ export function Navbar({ title, sidebarCollapsed, showSearch = false, onSearch }
   return (
     <header
       className={cn(
-        'fixed top-0 right-0 z-30 flex h-navbar items-center gap-3 border-b bg-card/80 backdrop-blur-md px-4',
+        'fixed top-0 right-0 left-0 z-30 flex h-navbar items-center gap-2 border-b bg-card/80 backdrop-blur-md px-2 sm:gap-3 sm:px-4',
         'transition-all duration-200',
-        sidebarCollapsed ? 'left-sidebar-collapsed' : 'left-sidebar'
+        sidebarCollapsed ? 'lg:left-sidebar-collapsed' : 'lg:left-sidebar'
       )}
     >
+      {/* Меню — телефондо гана */}
+      <Button
+        variant="ghost"
+        size="icon-touch"
+        onClick={onMenuClick}
+        className="shrink-0 lg:hidden"
+        aria-label={t('ui.openMenu')}
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
       {/* Title */}
-      {title && (
-        <h1 className="text-lg font-semibold truncate shrink-0 hidden sm:block">{title}</h1>
-      )}
+      {title && <h1 className="text-lg font-semibold truncate hidden sm:block">{title}</h1>}
 
       {/* Search */}
       {showSearch && (
-        <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 min-w-0 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             placeholder={t('common.search')}
@@ -54,20 +71,28 @@ export function Navbar({ title, sidebarCollapsed, showSearch = false, onSearch }
 
       <div className="flex-1" />
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 sm:gap-2">
+      {/* Actions — телефондо орун аз, экинчи даражадагылар жашырылат.
+          Тил алмаштыруу каптал менюнун ылдый жагында калат. */}
+      <div className="flex shrink-0 items-center gap-1 sm:gap-2">
         {user && (
           <Badge variant="secondary" className="hidden md:inline-flex">
             {t(`roles.${user.role.toLowerCase()}`)}
           </Badge>
         )}
 
-        <Button variant="ghost" size="icon-touch" aria-label={t('ui.notifications')}>
+        <Button
+          variant="ghost"
+          size="icon-touch"
+          aria-label={t('ui.notifications')}
+          className="hidden sm:inline-flex"
+        >
           <Bell className="h-5 w-5" />
         </Button>
 
         <ThemeToggle />
-        <LanguageSwitcher />
+        <div className="hidden sm:block">
+          <LanguageSwitcher />
+        </div>
 
         <Button
           variant="ghost"

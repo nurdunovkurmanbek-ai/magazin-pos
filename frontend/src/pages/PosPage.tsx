@@ -132,7 +132,8 @@ export function PosPage() {
 
   return (
     <AppLayout title={t('pos.title')}>
-      <div className="grid lg:grid-cols-3 gap-4 h-[calc(100vh-8rem)]">
+      {/* Телефондо блоктор бири-биринин астына тизилип, бийиктик эркин калат */}
+      <div className="grid lg:grid-cols-3 gap-4 lg:h-[calc(100vh-8rem)]">
         {/* Сол жак — сканер жана себет */}
         <div className="lg:col-span-2 flex flex-col gap-4 min-h-0">
           {/* Сканер */}
@@ -197,9 +198,10 @@ export function PosPage() {
                   {cart.map((item) => (
                     <div
                       key={item.productId}
-                      className="flex items-center gap-3 p-3 rounded-lg border bg-card"
+                      className="flex flex-wrap items-center gap-2 sm:gap-3 p-3 rounded-lg border bg-card"
                     >
-                      <div className="flex-1 min-w-0">
+                      {/* Телефондо аталыш өзүнчө сапта, башкаруу баскычтары ылдыйда */}
+                      <div className="w-full min-w-0 sm:w-auto sm:flex-1">
                         <p className="font-medium truncate">
                           {productName(item.nameKy, item.nameRu)}
                         </p>
@@ -230,7 +232,7 @@ export function PosPage() {
                         </Button>
                       </div>
 
-                      <div className="w-24 text-right font-semibold tabular-nums">
+                      <div className="ml-auto w-20 sm:w-24 text-right font-semibold tabular-nums">
                         {formatCurrency(item.unitPrice * item.quantity)}
                       </div>
 

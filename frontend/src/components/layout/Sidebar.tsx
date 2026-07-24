@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Store,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -46,12 +47,20 @@ const navItems: NavItem[] = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  /** Телефондо панель ачыкпы (lg'ден кичине экрандарда гана мааниси бар) */
+  mobileOpen: boolean;
+  /** Телефондо панелди жабуу */
+  onMobileClose: () => void;
 }
 
 /**
  * Sidebar — негизги навигация, сенсордук экрандарга ыңгайлуу
+ *
+ * lg жана андан чоң экрандарда — туруктуу каптал панель (жыйыштырса болот).
+ * Кичине экрандарда — сыртка жылып чыгуучу панель (drawer), демейде жашырылган.
+ * `collapsed` кичине экрандарда колдонулбайт: бардык жазуулар көрүнөт.
  */
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
   const { t, i18n } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const { can } = usePermissions();
@@ -70,17 +79,18 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-40 flex h-screen flex-col',
+        'fixed left-0 top-0 z-50 flex h-screen flex-col w-sidebar',
         'bg-sidebar text-sidebar-foreground border-r border-sidebar-border',
-        'transition-all duration-200 ease-in-out',
-        collapsed ? 'w-sidebar-collapsed' : 'w-sidebar'
+        'transition-transform duration-200 ease-in-out lg:z-40 lg:transition-all',
+        collapsed && 'lg:w-sidebar-collapsed',
+        mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       )}
     >
       {/* Logo */}
       <div
         className={cn(
-          'flex h-navbar items-center border-b border-sidebar-border shrink-0',
-          collapsed ? 'justify-center px-2' : 'px-4 gap-3'
+          'flex h-navbar items-center border-b border-sidebar-border shrink-0 px-4 gap-3',
+          collapsed && 'lg:justify-center lg:px-2 lg:gap-0'
         )}
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground overflow-hidden">
@@ -90,16 +100,25 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             <Store className="h-5 w-5" />
           )}
         </div>
-        {!collapsed && (
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-bold">{storeName}</p>
-            {user && (
-              <p className="truncate text-xs text-muted-foreground">
-                {user.firstName} {user.lastName}
-              </p>
-            )}
-          </div>
-        )}
+        <div className={cn('min-w-0 flex-1', collapsed && 'lg:hidden')}>
+          <p className="truncate text-sm font-bold">{storeName}</p>
+          {user && (
+            <p className="truncate text-xs text-muted-foreground">
+              {user.firstName} {user.lastName}
+            </p>
+          )}
+        </div>
+
+        {/* Жабуу — телефондо гана */}
+        <Button
+          variant="ghost"
+          size="icon-touch"
+          onClick={onMobileClose}
+          className="shrink-0 lg:hidden"
+          aria-label={t('ui.closeMenu')}
+        >
+          <X className="h-5 w-5" />
+        </Button>
       </div>
 
       {/* Navigation */}
@@ -109,11 +128,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             key={key}
             to={href}
             end={href === '/'}
+            onClick={onMobileClose}
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 rounded-md font-medium transition-colors touch-manipulation',
-                'min-h-touch select-none active:scale-[0.98]',
-                collapsed ? 'justify-center px-2' : 'px-3',
+                'min-h-touch select-none active:scale-[0.98] px-3',
+                collapsed && 'lg:justify-center lg:px-2',
                 isActive
                   ? 'bg-sidebar-active text-sidebar-active-foreground'
                   : 'text-sidebar-foreground hover:bg-accent hover:text-accent-foreground'
@@ -122,21 +142,21 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             title={collapsed ? t(`nav.${key}`) : undefined}
           >
             <Icon className="h-5 w-5 shrink-0" />
-            {!collapsed && <span className="text-sm">{t(`nav.${key}`)}</span>}
+            <span className={cn('text-sm', collapsed && 'lg:hidden')}>{t(`nav.${key}`)}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* Тил жана жыйыштыруу */}
       <div className="border-t border-sidebar-border p-2 shrink-0 space-y-1">
-        <div className={cn('flex', collapsed ? 'justify-center' : 'px-1')}>
+        <div className={cn('flex px-1', collapsed && 'lg:justify-center lg:px-0')}>
           <LanguageSwitcher showLabel={!collapsed} />
         </div>
         <Button
           variant="ghost"
           size={collapsed ? 'icon-touch' : 'touch'}
           onClick={onToggle}
-          className={cn('w-full', collapsed && 'px-0')}
+          className={cn('hidden w-full lg:flex', collapsed && 'px-0')}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? (

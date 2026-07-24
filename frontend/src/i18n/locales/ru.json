@@ -104,7 +104,9 @@
     "toggleTheme": "Сменить тему",
     "language": "Выбор языка",
     "notifications": "Уведомления",
-    "collapse": "Свернуть"
+    "collapse": "Свернуть",
+    "openMenu": "Открыть меню",
+    "closeMenu": "Закрыть меню"
   },
   "products": {
     "title": "Товары",

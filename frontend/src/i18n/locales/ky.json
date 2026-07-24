@@ -104,7 +104,9 @@
     "toggleTheme": "Теманы өзгөртүү",
     "language": "Тил тандау",
     "notifications": "Эскертүүлөр",
-    "collapse": "Жыйыштыруу"
+    "collapse": "Жыйыштыруу",
+    "openMenu": "Менюну ачуу",
+    "closeMenu": "Менюну жабуу"
   },
   "products": {
     "title": "Товарлар",

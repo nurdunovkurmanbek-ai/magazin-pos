@@ -344,7 +344,7 @@ export function ProductFormModal({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('products.unit')}</Label>
                 <Input value={form.unit} onChange={(e) => set('unit', e.target.value)} />
