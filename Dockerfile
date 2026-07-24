@@ -64,4 +64,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
   CMD wget -qO- http://localhost:3001/api/v1/health || exit 1
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["sh", "-c", "npx prisma db push --skip-generate && node dist/backend/src/server.js"]
+CMD ["sh", "-c", "npx prisma db push --skip-generate && { [ \"$RUN_SEED\" = \"true\" ] && node prisma/seed-prod.js || true; } && node dist/backend/src/server.js"]

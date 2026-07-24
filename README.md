@@ -118,6 +118,39 @@ npx prisma migrate deploy   # же db:push
 NODE_ENV=production SERVE_FRONTEND=true node dist/server.js
 ```
 
+### Render.com'го жайгаштыруу (интернеттеги шилтеме)
+
+Репозиторийде `render.yaml` бар — Render базаны жана веб-сервисти өзү түзөт.
+
+1. https://render.com — GitHub аркылуу катталуу
+2. **New → Blueprint** → бул репозиторийди тандоо → **Apply**
+3. Render эки купуя сөздү сурайт (32+ символ, `openssl rand -hex 32` менен түзсө болот):
+   - `JWT_ACCESS_SECRET`
+   - `JWT_REFRESH_SECRET`
+4. Биринчи build ~10 мүнөт. Бүткөндө шилтеме чыгат:
+   `https://magazin-pos-xxxx.onrender.com`
+5. Шилтеме белгилүү болгондон кийин Environment бөлүмүнө кошуу (QR коддор үчүн):
+   - `CORS_ORIGIN` = ошол шилтеме
+   - `PUBLIC_APP_URL` = ошол шилтеме
+
+**Баштапкы кирүү** (`RUN_SEED=true` биринчи ишке киргенде түзөт):
+
+| Email | Сырсөз | Роль |
+|-------|--------|------|
+| `admin@magazin.kg` | `admin123` | ADMIN |
+| `cashier@magazin.kg` | `cashier123` | CASHIER |
+
+Сырсөздү `SEED_ADMIN_PASSWORD` / `SEED_CASHIER_PASSWORD` менен алмаштырса болот.
+Demo товарлар керек эмес болсо: `SEED_DEMO=false`.
+
+**Акысыз тарифтин чектөөлөрү:**
+
+- 15 мүнөт колдонулбаса сервис уктайт — кийинки ачылыш ~1 мүнөт
+- Акысыз Postgres 30 күндөн кийин өчөт
+- Жүктөлгөн сүрөттөр (`uploads/`) кайра иштеткенде жоголот — акысыз тарифте туруктуу диск жок
+
+Ошондуктан акысыз тариф **демонстрация үчүн** ылайык, чыныгы дүкөндүн иши үчүн эмес.
+
 ## Тесттер
 
 ```bash

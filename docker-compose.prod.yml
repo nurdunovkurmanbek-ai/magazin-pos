@@ -42,6 +42,7 @@ services:
       FRONTEND_DIST: /app/frontend/dist
       TRUST_PROXY: "true"
       ALLOW_DEMO_SEED: ${ALLOW_DEMO_SEED:-true}
+      RUN_SEED: ${RUN_SEED:-false}
     volumes:
       - app_uploads:/app/backend/uploads
       - app_backups:/app/backend/backups
